@@ -9,55 +9,111 @@ import {
     Alert
 } from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
-import auth from '@react-native-firebase/auth';
-import {
-    storeWhetherUserLoggedIn
-} from '../store/actions/action'
-function ContentListHook() {
-    
+import database from '@react-native-firebase/database';
+import CheckBox from '@react-native-community/checkbox';
+import filter from 'lodash.filter';
+const myDB = database().ref("item");
+function ContentListHook(props) {
+    const [navigation, setNavigation] = useState(props.navigation);
     const [isLoading, setLoading] = useState(true);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const storeWhetherUserLoggedInResponse = useSelector(state=> state.storeWhetherUserLoggedIn);
+    const[items, setItem] = useState([]);
+    const [query, setQuery] = useState('');
+
     const dispatch = useDispatch();
 
-    authenticateByFirebase = async() => {
-      auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        let obj = {
-            flag : true
-        }
-        dispatch(storeWhetherUserLoggedIn(obj))
-        Alert.alert("Your are logged in")
-      })
-      .catch(error => {
-        Alert.alert(error.code)
-        setError(error.code)
-        console.error(error);
-      });   
+    const handleSearch = text => {
+      const formattedQuery = text.toLowerCase();
+      const filteredData = filter(items, item => {
+        return contains(item.title, formattedQuery);
+      });
+      if(filteredData.length) {
+        setItem(filteredData);
+        setQuery(text);
+      }
+    };
+    
+    const contains = (title, query) => {
+      if (title.includes(query)) {
+        return true;
+      }
+      return false;
+    };
+
+    function renderHeader() {
+      return (
+        <View
+          style={{
+            backgroundColor: '#fff',
+            padding: 10,
+            marginVertical: 10,
+            borderRadius: 20
+          }}
+        >
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="always"
+            value={query}
+            onChangeText={queryText => handleSearch(queryText)}
+            placeholder="Search"
+            style={{ backgroundColor: '#fff', paddingHorizontal: 20 }}
+          />
+        </View>
+      );
     }
 
+    function handleCheck(index){
+      myDB.child(index+"").update(
+        {ischecked: true}
+      )
+      myDB.off();
+    }
     useEffect (async() => {
+      try {
+        myDB.on(
+          "value", dbSnap => {
+            console.log("dbSnap =>", dbSnap.val());
+            setItem(dbSnap.val())
+            setLoading(false)
+          }
+        )
+      } catch(e) {
+        console.log(e);
+      }
 
     },[dispatch])
     return (
-        <View style={{ flex: 1, padding: 24 }}>
-           <ScrollView style={{padding: 100, paddingTop: 100}}>
-                <Text 
-                    style={{fontSize: 27}}>
-                    Login
-                </Text>
-                <TextInput placeholder='Email' onChangeText={email => setEmail(email)} />
-                <TextInput placeholder='Password' onChangeText={pass => setPassword(pass)}/>
-                <View style={{margin:7}} />
-                <Button 
-                          onPress={() => authenticateByFirebase()}
-                          title="Submit"
-                    />
-                  </ScrollView>
-      </View>
+        <ScrollView style={{ flex: 1, padding: 24 }}>
+        <Button 
+          title="Add More"
+          onPress = {() => navigation.navigate('AddContentHook')}/>
+       {isLoading ? <Text>Loading.....</Text> 
+       : <FlatList
+          ListHeaderComponent={renderHeader}
+          data={items}
+          keyExtractor={item => item.id}
+          renderItem={({ item,index }) => (
+            <View style={
+              {
+                marginTop: 10,
+                padding: 20,
+                alignItems: 'center',
+                backgroundColor: '#fff',
+                width: '100%'
+              }
+            }>
+              <Text style={{
+          fontSize: 11
+        }}>{item.title}</Text>
+          <CheckBox
+              value={item.ischecked}
+              onValueChange={() => handleCheck(index)}
+              style={{ alignSelf: "center",}}
+            />
+            </View>
+          )}
+        />}
+      </ScrollView>
     )
 }
 

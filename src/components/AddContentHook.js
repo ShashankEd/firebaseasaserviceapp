@@ -2,61 +2,63 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
-    FlatList,
-    ScrollView,
     TextInput,
     Button,
     Alert
 } from 'react-native';
-import { useDispatch, useSelector } from "react-redux";
-import auth from '@react-native-firebase/auth';
-import {
-    storeWhetherUserLoggedIn
-} from '../store/actions/action'
-function AddContentHook() {
-    
-    const [isLoading, setLoading] = useState(true);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const storeWhetherUserLoggedInResponse = useSelector(state=> state.storeWhetherUserLoggedIn);
-    const dispatch = useDispatch();
+import database from '@react-native-firebase/database';
+import CheckBox from '@react-native-community/checkbox';
+const myDB = database().ref("item");
+function AddContentHook(props) {
 
-    authenticateByFirebase = async() => {
-      auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        let obj = {
-            flag : true
+    const [navigation, setNavigation] = useState(props.navigation);
+    const [title, setTitle] = useState('');
+    const [ischecked, setIsChecked] = useState(false);
+    const [numOfChildren, setNumberOfChild] = useState(0)
+
+    function addItem() {
+      console.log("numOfChildren" , numOfChildren);
+      myDB.push(
+        {
+          title: title,
+          ischecked: ischecked,
+          uid: numOfChildren + 1
         }
-        dispatch(storeWhetherUserLoggedIn(obj))
-        Alert.alert("Your are logged in")
-      })
-      .catch(error => {
-        Alert.alert(error.code)
-        setError(error.code)
-        console.error(error);
-      });   
+      );
+      myDB.off();
     }
-
     useEffect (async() => {
-
-    },[dispatch])
+      try {
+        myDB.on(
+          "value", dbSnap => {
+            console.log("dbSnap =>", dbSnap.numChildren());
+            setNumberOfChild(dbSnap.numChildren())
+          })
+      } catch(e) {
+        console.log("DB error");
+      }
+      myDB.off();
+    },[])
     return (
         <View style={{ flex: 1, padding: 24 }}>
-           <ScrollView style={{padding: 100, paddingTop: 100}}>
-                <Text 
-                    style={{fontSize: 27}}>
-                    Login
-                </Text>
-                <TextInput placeholder='Email' onChangeText={email => setEmail(email)} />
-                <TextInput placeholder='Password' onChangeText={pass => setPassword(pass)}/>
-                <View style={{margin:7}} />
-                <Button 
-                          onPress={() => authenticateByFirebase()}
-                          title="Submit"
-                    />
-                  </ScrollView>
+          <Text>Add a new Item</Text>
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="always"
+            value={title}
+            onChangeText={title => setTitle(title)}
+            placeholder="Enter title"
+            style={{ backgroundColor: '#fff', paddingHorizontal: 20 }}
+          />
+          <CheckBox
+            value={ischecked}
+            onValueChange={(value) => setIsChecked(value)}
+            style={{ alignSelf: "center",}}
+          />
+          <Button 
+            title="Add"
+            onPress={() => addItem()}/>
       </View>
     )
 }

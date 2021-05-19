@@ -33,7 +33,6 @@ import SplashHook from './src/components/SplashHook';
 
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { useSelector } from "react-redux";
 const Stack = createStackNavigator();
   function App() {
    return (
@@ -43,9 +42,9 @@ const Stack = createStackNavigator();
            <NavigationContainer>
             <Stack.Navigator initialRouteName='SplashHook'>
               <Stack.Screen name="SplashHook" component={SplashHook} options={{header:  ()=> null}}/>
-              <Stack.Screen name="SignInHook" component={SignInHook} options={{ title: 'Login' }}/>
-              <Stack.Screen name="ContentListHook" component={ContentListHook}  options={{ title: 'ContentListHook',headerLeft: ()=> null }}/>
-              <Stack.Screen name="AddContentHook" component={AddContentHook} options={{ title: 'AddContentHook' }}/>
+              <Stack.Screen name="SignInHook" component={SignInHook} options={{ title: 'Login' ,eaderLeft: ()=> null }}/>
+              <Stack.Screen name="ContentListHook" component={ContentListHook}  options={{header:  ()=> null}}/>
+              <Stack.Screen name="AddContentHook" component={AddContentHook} options={{ title: 'Add Item' }}/>
             </Stack.Navigator>
            </NavigationContainer>
            </SafeAreaView>

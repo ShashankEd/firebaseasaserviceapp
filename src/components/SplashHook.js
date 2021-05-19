@@ -10,6 +10,8 @@ function SplashHook(props) {
         // console.log("storeWhetherUserLoggedInResponse : ",storeWhetherUserLoggedInResponse);
         if(storeWhetherUserLoggedInResponse.flag) {
             navigation.navigate('ContentListHook')
+        } else {
+            navigation.navigate('SignInHook')
         }
     },[])
     return (
