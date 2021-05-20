@@ -14,6 +14,7 @@
    StatusBar,
    StyleSheet,
    View,
+   BackHandler
  } from 'react-native';
  
 
@@ -35,6 +36,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 const Stack = createStackNavigator();
   function App() {
+    useEffect(() => {
+      BackHandler.addEventListener('hardwareBackPress', () => true)
+      return () =>
+        BackHandler.removeEventListener('hardwareBackPress', () => true)
+    })
    return (
      <Provider store={store}>
        <PersistGate loading={null} persistor={persistor}>
@@ -42,9 +48,9 @@ const Stack = createStackNavigator();
            <NavigationContainer>
             <Stack.Navigator initialRouteName='SplashHook'>
               <Stack.Screen name="SplashHook" component={SplashHook} options={{header:  ()=> null}}/>
-              <Stack.Screen name="SignInHook" component={SignInHook} options={{ title: 'Login' ,eaderLeft: ()=> null }}/>
+              <Stack.Screen name="SignInHook" component={SignInHook} options={{ title: 'Login' ,header: ()=> null }}/>
               <Stack.Screen name="ContentListHook" component={ContentListHook}  options={{header:  ()=> null}}/>
-              <Stack.Screen name="AddContentHook" component={AddContentHook} options={{ title: 'Add Item' }}/>
+              <Stack.Screen name="AddContentHook" component={AddContentHook} options={{ title: '' }}/>
             </Stack.Navigator>
            </NavigationContainer>
            </SafeAreaView>

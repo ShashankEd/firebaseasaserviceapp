@@ -23,41 +23,30 @@ function SignInHook(props) {
     const storeWhetherUserLoggedInResponse = useSelector(state=> state.storeWhetherUserLoggedIn);
     const dispatch = useDispatch();
 
-    // registerUser = async(email, password) => {
-    //     auth()
-    //     .createUserWithEmailAndPassword(email, password)
-    //     .then(() => {
-    //         console.log('User account created & signed in!');
-    //     })
-    //     .catch(error => {
-    //         if (error.code === 'auth/email-already-in-use') {
-    //         console.log('That email address is already in use!');
-    //         }
-
-    //         if (error.code === 'auth/invalid-email') {
-    //         console.log('That email address is invalid!');
-    //         }
-
-    //         console.error(error);
-    //     });
-    // }
+    function validateEmail(email) {
+      const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(String(email).toLowerCase());
+    }
 
     authenticateByFirebase = async() => {
-      auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        let obj = {
-            flag : true
-        }
-        dispatch(storeWhetherUserLoggedIn(obj))
-        // Alert.alert("Your are logged in")
-        navigation.navigate('ContentListHook');
-      })
-      .catch(error => {
-        Alert.alert(error.code)
-        setError(error.code)
-        console.error(error);
-      });   
+      if(validateEmail(email) && password!== '') {
+        auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(() => {
+          let obj = {
+              flag : true
+          }
+          dispatch(storeWhetherUserLoggedIn(obj))
+          navigation.navigate('ContentListHook');
+        })
+        .catch(error => {
+          Alert.alert(error.code)
+          setError(error.code)
+          console.error(error);
+        });  
+      } else {
+        Alert.alert("Please enter correct email/password");
+      }
     }
 
     useEffect (async() => {
@@ -71,7 +60,7 @@ function SignInHook(props) {
                     Login
                 </Text>
                 <TextInput placeholder='Email' onChangeText={email => setEmail(email)} />
-                <TextInput placeholder='Password' onChangeText={pass => setPassword(pass)}/>
+                <TextInput placeholder='Password' secureTextEntry={true} onChangeText={pass => setPassword(pass)}/>
                 <View style={{margin:7}} />
                 <Button 
                           onPress={() => authenticateByFirebase()}

@@ -9,6 +9,9 @@ import {
     Alert
 } from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
+import {
+  storeWhetherUserLoggedIn
+} from '../store/actions/action'
 import database from '@react-native-firebase/database';
 import CheckBox from '@react-native-community/checkbox';
 import filter from 'lodash.filter';
@@ -18,7 +21,6 @@ function ContentListHook(props) {
     const [isLoading, setLoading] = useState(true);
     const[items, setItem] = useState([]);
     const [query, setQuery] = useState('');
-
     const dispatch = useDispatch();
 
     const handleSearch = text => {
@@ -62,6 +64,15 @@ function ContentListHook(props) {
       );
     }
 
+    function logout() {
+      console.log("logout called....");
+      let obj ={
+        flag : false
+      }
+      dispatch(storeWhetherUserLoggedIn(obj));
+      navigation.navigate('SignInHook');
+    }
+
     function handleCheck(index){
       myDB.child(index+"").update(
         {ischecked: true}
@@ -84,6 +95,9 @@ function ContentListHook(props) {
     },[dispatch])
     return (
         <ScrollView style={{ flex: 1, padding: 24 }}>
+          <View style={{flex:1, flexDirection:'column',alignItems:'flex-end',paddingBottom:20}}>
+          <Text style={{fontSize:20, fontWeight:'bold', color:'black'}} onPress={() => logout()}>Logout</Text>
+          </View>
         <Button 
           title="Add More"
           onPress = {() => navigation.navigate('AddContentHook')}/>
@@ -95,6 +109,7 @@ function ContentListHook(props) {
           renderItem={({ item,index }) => (
             <View style={
               {
+                flexDirection:'row',
                 marginTop: 10,
                 padding: 20,
                 alignItems: 'center',

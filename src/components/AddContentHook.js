@@ -41,7 +41,9 @@ function AddContentHook(props) {
     },[])
     return (
         <View style={{ flex: 1, padding: 24 }}>
-          <Text>Add a new Item</Text>
+          <View style={{flexDirection:'column',alignItems:'center',paddingBottom:20}}>
+            <Text style={{fontSize:20, fontWeight:'bold', color:'black'}}>Add New Item</Text>
+          </View>
           <TextInput
             autoCapitalize="none"
             autoCorrect={false}
