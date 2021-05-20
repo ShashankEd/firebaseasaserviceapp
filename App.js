@@ -1,23 +1,10 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
 
  import React, { useEffect } from 'react';
- import type {Node} from 'react';
  import {
    SafeAreaView,
-   ScrollView,
-   StatusBar,
    StyleSheet,
-   View,
    BackHandler
  } from 'react-native';
- 
-
  import 'react-native-gesture-handler';
  import {Provider} from 'react-redux';
  import {PersistGate} from 'redux-persist/integration/react';
