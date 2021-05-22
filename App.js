@@ -3,7 +3,8 @@
  import {
    SafeAreaView,
    StyleSheet,
-   BackHandler
+   BackHandler,
+   Alert
  } from 'react-native';
  import 'react-native-gesture-handler';
  import {Provider} from 'react-redux';
@@ -21,13 +22,41 @@ import SplashHook from './src/components/SplashHook';
 
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
+import messaging from '@react-native-firebase/messaging';
+
 const Stack = createStackNavigator();
   function App() {
-    useEffect(() => {
+    useEffect(async() => {
+      await getToken(); //one time use to get the token of the device, in real time, this will send to the backend.
+      await requestUserPermission();
+      const unsubscribe = messaging().onMessage(async remoteMessage => {
+        console.log("remoteMessage ::: ", remoteMessage);
+        Alert.alert('A new FCM message arrived!', remoteMessage.notification.title);
+      });
       BackHandler.addEventListener('hardwareBackPress', () => true)
       return () =>
         BackHandler.removeEventListener('hardwareBackPress', () => true)
     })
+
+    async function getToken() {
+      const fcmToken = await messaging().getToken();
+      if (fcmToken) {
+          // user has a device token
+          console.warn("FCM token ", fcmToken);
+      } else {
+          // user doesn't have a device token yet
+      }
+    }
+    async function requestUserPermission() {
+      const authStatus = await messaging().requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    
+      if (enabled) {
+        console.log('Authorization status:', authStatus);
+      }
+    }
    return (
      <Provider store={store}>
        <PersistGate loading={null} persistor={persistor}>
